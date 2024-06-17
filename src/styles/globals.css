@@ -1,0 +1,27 @@
+@layer tailwind-base, mecore;
+
+@layer tailwind-base {
+  @tailwind base;
+}
+@tailwind components;
+@tailwind utilities;
+
+@layer mecore {
+  :root {
+    --mecore-scale: 1;
+
+    --mecore-color-primary-main: #be202a;
+    --mecore-color-primary-background: #fbd5d8;
+
+    --mecore-color-secondary-main: #63ab45;
+
+    --mecore-color-text-primary: #1c231f;
+    --mecore-color-text-secondary: #5a5a60;
+  }
+
+  .dark {
+  }
+}
+
+body {
+}
