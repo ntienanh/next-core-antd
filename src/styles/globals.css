@@ -24,4 +24,8 @@
 }
 
 body {
+  .ant-layout-sider-trigger {
+    color: #1979FF !important;
+    box-shadow: -2px 1px 10px -1px rgba(0, 0, 0, 0.29);
+  }
 }

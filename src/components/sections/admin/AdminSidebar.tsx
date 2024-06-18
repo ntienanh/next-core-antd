@@ -1,6 +1,6 @@
 'use client';
 
-import { AppstoreOutlined, CalendarOutlined, LinkOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CalendarOutlined, LinkOutlined, MailOutlined } from '@ant-design/icons';
 import { GetProp, Layout, Menu, MenuProps } from 'antd';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,35 +27,12 @@ const items: MenuItem[] = [
     children: [
       { key: '3', label: <Link href={'/admin/user/userTest'}>User Test</Link> },
       { key: '4', label: 'Option 4' },
-      {
-        key: 'user-2',
-        label: 'Submenu',
-        children: [
-          { key: '5', label: 'Option 5' },
-          { key: '6', label: 'Option 6' },
-        ],
-      },
     ],
   },
   {
-    key: 'sub2',
-    label: 'Navigation Three',
-    icon: <SettingOutlined />,
-    children: [
-      { key: '7', label: 'Option 7' },
-      { key: '8', label: 'Option 8' },
-      { key: '9', label: 'Option 9' },
-      { key: '10', label: 'Option 10' },
-    ],
-  },
-  {
-    key: 'link',
+    key: '5',
     icon: <LinkOutlined />,
-    label: (
-      <a href='https://ant.design' target='_blank' rel='noopener noreferrer'>
-        Ant Design
-      </a>
-    ),
+    label: <Link href={'/admin/media'}>Media Library</Link>,
   },
 ];
 
@@ -73,6 +50,8 @@ const AdminSidebar = () => {
     switch (pathname) {
       case '/admin/user':
         return ['2'];
+      case '/admin/media':
+        return ['5'];
       case '/admin/user/userTest':
         return ['3'];
       default:
@@ -82,6 +61,7 @@ const AdminSidebar = () => {
 
   return (
     <Sider
+    zeroWidthTriggerStyle={{color:'red'}}
       collapsible
       collapsed={toggle}
       onCollapse={() => setToggle(!toggle)}

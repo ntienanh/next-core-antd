@@ -1,6 +1,7 @@
+import BackToTopBtn from '@/components/elements/BackToTopBtn';
 import AdminHeader from '@/components/sections/admin/AdminHeader';
 import AdminSidebar from '@/components/sections/admin/AdminSidebar';
-import { Layout } from 'antd';
+import {  Layout } from 'antd';
 
 export default function AdminLayout({
   children,
@@ -11,8 +12,8 @@ export default function AdminLayout({
     <Layout className='flex' hasSider>
       <AdminHeader />
       <AdminSidebar />
-
-      <div className='mt-[64px] min-h-screen flex-1 p-8'>{children}</div>
+      <BackToTopBtn/>
+      <div className='mt-[64px] flex-1 p-8'>{children}</div>
     </Layout>
   );
 }
