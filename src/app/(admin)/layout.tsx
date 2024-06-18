@@ -8,11 +8,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Layout className='flex'>
+    <Layout className='flex' hasSider>
       <AdminHeader />
       <AdminSidebar />
 
-      <div className='mt-[64px] min-h-screen flex-1 p-4'>{children}</div>
+      <div className='mt-[64px] min-h-screen flex-1 p-8'>{children}</div>
     </Layout>
   );
 }
