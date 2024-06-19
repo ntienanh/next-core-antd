@@ -58,6 +58,66 @@ const UserTable = ({ listUser }: any) => {
       key: 'age',
     },
     {
+      title: 'Column 1',
+      dataIndex: 'address',
+      key: '1',
+      width: 150,
+    },
+    {
+      title: 'Column 2',
+      dataIndex: 'address',
+      key: '2',
+      width: 150,
+    },
+    {
+      title: 'Column 3',
+      dataIndex: 'address',
+      key: '3',
+      width: 150,
+    },
+    {
+      title: 'Column 4',
+      dataIndex: 'address',
+      key: '4',
+      width: 150,
+    },
+    {
+      title: 'Column 5',
+      dataIndex: 'address',
+      key: '5',
+      width: 150,
+    },
+    {
+      title: 'Column 4',
+      dataIndex: 'address',
+      key: '4',
+      width: 150,
+    },
+    {
+      title: 'Column 5',
+      dataIndex: 'address',
+      key: '5',
+      width: 150,
+    },
+    {
+      title: 'Column 6',
+      dataIndex: 'address',
+      key: '6',
+      width: 150,
+    },
+    {
+      title: 'Column 8',
+      dataIndex: 'address',
+      key: '8',
+      width: 150,
+    },
+    {
+      title: 'Column 7',
+      dataIndex: 'address',
+      key: '7',
+      width: 150,
+    },
+    {
       title: 'CreatedAt',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -85,6 +145,83 @@ const UserTable = ({ listUser }: any) => {
       ),
     },
   ];
+
+  const columns = [
+    {
+      title: 'Full Name',
+      width: 100,
+      dataIndex: 'name',
+      key: 'name',
+      fixed: 'left',
+    },
+    {
+      title: 'Age',
+      width: 100,
+      dataIndex: 'age',
+      key: 'age',
+      fixed: 'left',
+    },
+    {
+      title: 'Column 1',
+      dataIndex: 'address',
+      key: '1',
+      width: 150,
+    },
+    {
+      title: 'Column 2',
+      dataIndex: 'address',
+      key: '2',
+      width: 150,
+    },
+    {
+      title: 'Column 3',
+      dataIndex: 'address',
+      key: '3',
+      width: 150,
+    },
+    {
+      title: 'Column 4',
+      dataIndex: 'address',
+      key: '4',
+      width: 150,
+    },
+    {
+      title: 'Column 5',
+      dataIndex: 'address',
+      key: '5',
+      width: 150,
+    },
+    {
+      title: 'Column 6',
+      dataIndex: 'address',
+      key: '6',
+      width: 150,
+    },
+    {
+      title: 'Column 7',
+      dataIndex: 'address',
+      key: '7',
+      width: 150,
+    },
+    { title: 'Column 8', dataIndex: 'address', key: '8' },
+    {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: () => <a>action</a>,
+    },
+  ];
+
+  const data = [];
+  for (let i = 0; i < 100; i++) {
+    data.push({
+      key: i,
+      name: `Edward ${i}`,
+      age: 32,
+      address: `London Park no. ${i}`,
+    });
+  }
 
   const handleFormChange = async () => {
     const currentValues = form.getFieldsValue();
@@ -122,6 +259,8 @@ const UserTable = ({ listUser }: any) => {
         onClose={onClose}
         open={open}
         classNames={{ body: 'bg-[#F5F5F5] !p-3' }}
+        placement='right'
+        height={'!auto'}
       >
         <Form
           form={form}
@@ -165,7 +304,7 @@ const UserTable = ({ listUser }: any) => {
         </Form>
       </Drawer>
 
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between pb-4'>
         <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
           Add new User
         </Button>
@@ -184,10 +323,14 @@ const UserTable = ({ listUser }: any) => {
         columns={userColumns}
         className='pt-3'
         pagination={false}
+        bordered
+        scroll={{ y: 570, x: 0 }}
       />
 
       <div className='flex items-center justify-between pt-3'>
-        <div>Totals `1`</div>
+        <p>
+          <span className='font-bold'>{listUser?.length || '0'}</span>&nbsp;users in total
+        </p>
         <Pagination defaultCurrent={1} total={50} showSizeChanger showQuickJumper />
       </div>
     </div>
