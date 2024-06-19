@@ -1,8 +1,12 @@
 'use client';
 
-import { getDetailUser } from '@/api-request/user';
+import { createUser, deleteUser, getDetailUser, updateUser } from '@/api-request/user';
+import { EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Drawer, Form, FormProps, Input, Pagination, Space, Table } from 'antd';
+import { useRouter } from 'next/navigation';
 import React from 'react';
+import { notification } from '../../common/NotificationAntd';
+import RadioGroup from '../RadioGroup';
 
 type FieldType = {
   id?: string;
@@ -11,25 +15,30 @@ type FieldType = {
   createdAt?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = values => {
-  console.log('Success:', values);
-};
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = errorInfo => {
-  console.log('Failed:', errorInfo);
-};
-
 const UserTable = ({ listUser }: any) => {
+  const router = useRouter();
   const [form] = Form.useForm();
-  const [open, setOpen] = React.useState(false);
-  const [info, setInfo] = React.useState('');
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [info, setInfo] = React.useState<string>('');
+  const [isDirty, setIsDirty] = React.useState<boolean>(false);
+  const [isValid, setIsValid] = React.useState<boolean>(false);
+  const [initialValues, setInitialValues] = React.useState<any>({});
 
   const showDrawer = () => {
+    const getID = form.getFieldValue('id');
+
+    if (getID === undefined) {
+      setInfo('');
+      form.resetFields();
+      form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
+    }
     setOpen(true);
   };
 
   const onClose = () => {
     setOpen(false);
+    setInfo('');
+    form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
   };
 
   const userColumns = [
@@ -58,25 +67,62 @@ const UserTable = ({ listUser }: any) => {
       key: 'action',
       render: (_: any, record: any) => (
         <Space size='middle'>
-          <a
+          <Button
+            size='small'
+            type='default'
             onClick={async () => {
               const { id, name, age, createdAt } = await getDetailUser(record?.id);
               form.setFieldsValue({ id, name, age, createdAt });
               setInfo(name);
               showDrawer();
+              setInitialValues({ id, name, age, createdAt });
             }}
-          >
-            Invite {record.name}
-          </a>
-          <a>Delete</a>
+            icon={<EyeOutlined />}
+          />
+
+          <button onClick={async () => await deleteUser(record?.id)}>Delete</button>
         </Space>
       ),
     },
   ];
 
+  const handleFormChange = async () => {
+    const currentValues = form.getFieldsValue();
+    const hasChanged = Object.keys(currentValues).some(key => currentValues[key] !== initialValues?.[key]);
+    setIsDirty(hasChanged);
+
+    try {
+      await form.validateFields();
+      setIsValid(true);
+    } catch (error) {
+      setIsValid(false);
+    }
+  };
+
+  const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
+    if (payload?.id) {
+      await updateUser(payload);
+    } else {
+      delete payload.id;
+      delete payload.createdAt;
+
+      await createUser(payload);
+      notification.success({ message: 'Tạo thành công', description: 'Success' });
+      router.refresh();
+      form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
+    }
+    setOpen(false);
+  };
+
   return (
     <div>
-      <Drawer title={info} onClose={onClose} open={open}>
+      <Drawer
+        getContainer={false}
+        title={info || 'Create new user'}
+        onClose={onClose}
+        open={open}
+        classNames={{ body: 'bg-[#F5F5F5] !p-3' }}
+      >
         <Form
           form={form}
           name='basic'
@@ -84,15 +130,11 @@ const UserTable = ({ listUser }: any) => {
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
+          onChange={handleFormChange}
           autoComplete='off'
         >
-          <Form.Item<FieldType>
-            label='ID'
-            name='id'
-            rules={[{ required: true, message: 'Please input your password!' }]}
-          >
-            <Input />
+          <Form.Item<FieldType> label='ID' name='id'>
+            <Input disabled />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -111,21 +153,28 @@ const UserTable = ({ listUser }: any) => {
             <Input />
           </Form.Item>
 
-          <Form.Item<FieldType>
-            label='CreatedAt'
-            name='createdAt'
-            rules={[{ required: true, message: 'Please input your password!' }]}
-          >
-            <Input />
+          <Form.Item<FieldType> label='CreatedAt' name='createdAt'>
+            <Input disabled />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type='primary' htmlType='submit'>
-              Submit
+            <Button type='primary' htmlType='submit' disabled={!isDirty || !isValid}>
+              Edit User
             </Button>
           </Form.Item>
         </Form>
       </Drawer>
+
+      <div className='flex items-center justify-between'>
+        <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
+          Add new User
+        </Button>
+
+        <div className='flex items-center justify-between gap-3'>
+          <Input prefix={<SearchOutlined className='!text-gray-400' />} placeholder='Search by name' size='large' />
+          <RadioGroup />
+        </div>
+      </div>
 
       <Table
         rowSelection={{

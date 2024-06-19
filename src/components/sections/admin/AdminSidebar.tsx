@@ -61,7 +61,7 @@ const AdminSidebar = () => {
 
   return (
     <Sider
-    zeroWidthTriggerStyle={{color:'red'}}
+      zeroWidthTriggerStyle={{ color: 'red' }}
       collapsible
       collapsed={toggle}
       onCollapse={() => setToggle(!toggle)}
