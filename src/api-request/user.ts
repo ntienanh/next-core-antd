@@ -5,7 +5,7 @@ import { revalidateTag } from 'next/cache';
 export const getListUser = async () => {
   const res = await fetch('https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user', {
     method: 'GET',
-    next: { tags: ['user'], revalidate: 0 },
+    next: { tags: ['user'], revalidate: 3600 },
   });
   if (!res.ok) {
     throw new Error('Failed to fetch data');

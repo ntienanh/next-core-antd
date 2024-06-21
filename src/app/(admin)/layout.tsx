@@ -13,7 +13,7 @@ export default function AdminLayout({
       <AdminHeader />
       <AdminSidebar />
       <BackToTopBtn/>
-      <div className='mt-[64px] flex-1 p-8'>{children}</div>
+      <div className='mt-[64px] flex-1 p-8 w-0'>{children}</div>
     </Layout>
   );
 }

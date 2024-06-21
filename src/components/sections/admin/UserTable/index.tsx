@@ -1,15 +1,26 @@
 'use client';
 
 import { createUser, deleteUser, getDetailUser, updateUser } from '@/api-request/user';
-import { EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Drawer, Form, FormProps, Input, Pagination, Space, Table } from 'antd';
+import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Drawer,
+  Form,
+  FormProps,
+  Input,
+  Pagination,
+  Popconfirm,
+  Space,
+  Table,
+  TableColumnsType,
+  message,
+} from 'antd';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { notification } from '../../common/NotificationAntd';
 import RadioGroup from '../RadioGroup';
 
 type FieldType = {
-  id?: string;
   name?: string;
   age?: string;
   createdAt?: string;
@@ -26,7 +37,6 @@ const UserTable = ({ listUser }: any) => {
 
   const showDrawer = () => {
     const getID = form.getFieldValue('id');
-
     if (getID === undefined) {
       setInfo('');
       form.resetFields();
@@ -41,90 +51,41 @@ const UserTable = ({ listUser }: any) => {
     form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
   };
 
-  const userColumns = [
+  const confirm = async (id: string) => {
+    await deleteUser(id);
+    message.success(`Delete ${id}`);
+  };
+
+  const userColumns: TableColumnsType<FieldType> = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      width: 50,
     },
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      width: 150,
     },
     {
       title: 'Age',
       dataIndex: 'age',
       key: 'age',
-    },
-    {
-      title: 'Column 1',
-      dataIndex: 'address',
-      key: '1',
-      width: 150,
-    },
-    {
-      title: 'Column 2',
-      dataIndex: 'address',
-      key: '2',
-      width: 150,
-    },
-    {
-      title: 'Column 3',
-      dataIndex: 'address',
-      key: '3',
-      width: 150,
-    },
-    {
-      title: 'Column 4',
-      dataIndex: 'address',
-      key: '4',
-      width: 150,
-    },
-    {
-      title: 'Column 5',
-      dataIndex: 'address',
-      key: '5',
-      width: 150,
-    },
-    {
-      title: 'Column 4',
-      dataIndex: 'address',
-      key: '4',
-      width: 150,
-    },
-    {
-      title: 'Column 5',
-      dataIndex: 'address',
-      key: '5',
-      width: 150,
-    },
-    {
-      title: 'Column 6',
-      dataIndex: 'address',
-      key: '6',
-      width: 150,
-    },
-    {
-      title: 'Column 8',
-      dataIndex: 'address',
-      key: '8',
-      width: 150,
-    },
-    {
-      title: 'Column 7',
-      dataIndex: 'address',
-      key: '7',
       width: 150,
     },
     {
       title: 'CreatedAt',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      width: 150,
     },
     {
       title: 'Action',
       key: 'action',
+      fixed: 'right',
+      width: 50,
       render: (_: any, record: any) => (
         <Space size='middle'>
           <Button
@@ -134,94 +95,27 @@ const UserTable = ({ listUser }: any) => {
               const { id, name, age, createdAt } = await getDetailUser(record?.id);
               form.setFieldsValue({ id, name, age, createdAt });
               setInfo(name);
-              showDrawer();
+              setOpen(true);
               setInitialValues({ id, name, age, createdAt });
             }}
             icon={<EyeOutlined />}
           />
 
-          <button onClick={async () => await deleteUser(record?.id)}>Delete</button>
+          <Popconfirm
+            title='Are you sure!'
+            description={`Delete user ${record?.id}`}
+            onConfirm={() => confirm(record?.id)}
+            onCancel={() => null}
+            okText='Delete'
+            okType='danger'
+            cancelText='Cancel'
+          >
+            <Button danger icon={<DeleteOutlined />} size='small' />
+          </Popconfirm>
         </Space>
       ),
     },
   ];
-
-  const columns = [
-    {
-      title: 'Full Name',
-      width: 100,
-      dataIndex: 'name',
-      key: 'name',
-      fixed: 'left',
-    },
-    {
-      title: 'Age',
-      width: 100,
-      dataIndex: 'age',
-      key: 'age',
-      fixed: 'left',
-    },
-    {
-      title: 'Column 1',
-      dataIndex: 'address',
-      key: '1',
-      width: 150,
-    },
-    {
-      title: 'Column 2',
-      dataIndex: 'address',
-      key: '2',
-      width: 150,
-    },
-    {
-      title: 'Column 3',
-      dataIndex: 'address',
-      key: '3',
-      width: 150,
-    },
-    {
-      title: 'Column 4',
-      dataIndex: 'address',
-      key: '4',
-      width: 150,
-    },
-    {
-      title: 'Column 5',
-      dataIndex: 'address',
-      key: '5',
-      width: 150,
-    },
-    {
-      title: 'Column 6',
-      dataIndex: 'address',
-      key: '6',
-      width: 150,
-    },
-    {
-      title: 'Column 7',
-      dataIndex: 'address',
-      key: '7',
-      width: 150,
-    },
-    { title: 'Column 8', dataIndex: 'address', key: '8' },
-    {
-      title: 'Action',
-      key: 'operation',
-      fixed: 'right',
-      width: 100,
-      render: () => <a>action</a>,
-    },
-  ];
-
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      key: i,
-      name: `Edward ${i}`,
-      age: 32,
-      address: `London Park no. ${i}`,
-    });
-  }
 
   const handleFormChange = async () => {
     const currentValues = form.getFieldsValue();
@@ -237,22 +131,38 @@ const UserTable = ({ listUser }: any) => {
   };
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
-    if (payload?.id) {
-      await updateUser(payload);
+    const getID = form.getFieldValue('id');
+
+    // Nếu có id
+    if (payload?.id || getID) {
+      (await updateUser(payload)) as any;
+      notification.success({ message: 'Edit thành công', description: 'Edit Success' });
+      router.refresh();
+      form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
     } else {
       delete payload.id;
       delete payload.createdAt;
 
       await createUser(payload);
-      notification.success({ message: 'Tạo thành công', description: 'Success' });
+      notification.success({ message: 'Create thành công', description: 'Created Success' });
       router.refresh();
       form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
     }
     setOpen(false);
+    form.resetFields();
   };
 
+  React.useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues);
+    }
+  }, [initialValues]);
+
+  // Kiểm tra lại điều kiện check isDirty and valid
+  // Sau khi tạo > click edit thì button submit active???
+
   return (
-    <div>
+    <div className='!w-full'>
       <Drawer
         getContainer={false}
         title={info || 'Create new user'}
@@ -271,11 +181,8 @@ const UserTable = ({ listUser }: any) => {
           onFinish={onFinish}
           onChange={handleFormChange}
           autoComplete='off'
+          initialValues={initialValues}
         >
-          <Form.Item<FieldType> label='ID' name='id'>
-            <Input disabled />
-          </Form.Item>
-
           <Form.Item<FieldType>
             label='Username'
             name='name'
@@ -292,13 +199,9 @@ const UserTable = ({ listUser }: any) => {
             <Input />
           </Form.Item>
 
-          <Form.Item<FieldType> label='CreatedAt' name='createdAt'>
-            <Input disabled />
-          </Form.Item>
-
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type='primary' htmlType='submit' disabled={!isDirty || !isValid}>
-              Edit User
+              Submit
             </Button>
           </Form.Item>
         </Form>
@@ -324,7 +227,8 @@ const UserTable = ({ listUser }: any) => {
         className='pt-3'
         pagination={false}
         bordered
-        scroll={{ y: 570, x: 0 }}
+        // sroll X phải lớn hơn tổng width của các col width
+        scroll={{ x: 1000, y: 570 }}
       />
 
       <div className='flex items-center justify-between pt-3'>
