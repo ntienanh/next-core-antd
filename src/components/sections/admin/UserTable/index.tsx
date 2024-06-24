@@ -1,26 +1,15 @@
 'use client';
 
 import { createUser, deleteUser, getDetailUser, updateUser } from '@/api-request/user';
+import UserDrawers from '@/components/drawers/UserDrawers';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import {
-  Button,
-  Drawer,
-  Form,
-  FormProps,
-  Input,
-  Pagination,
-  Popconfirm,
-  Space,
-  Table,
-  TableColumnsType,
-  message,
-} from 'antd';
+import { Button, Form, FormProps, Input, Pagination, Popconfirm, Space, Table, TableColumnsType, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { notification } from '../../common/NotificationAntd';
 import RadioGroup from '../RadioGroup';
 
-type FieldType = {
+export type FieldType = {
   name?: string;
   age?: string;
   createdAt?: string;
@@ -162,50 +151,17 @@ const UserTable = ({ listUser }: any) => {
   // Sau khi tạo > click edit thì button submit active???
 
   return (
-    <div className='!w-full'>
-      <Drawer
-        getContainer={false}
-        title={info || 'Create new user'}
+    <div className='!w-full' key={'sad'}>
+      <UserDrawers
+        form={form}
+        handleFormChange={handleFormChange}
+        info={info}
+        initialValues={initialValues}
         onClose={onClose}
+        onFinish={onFinish}
         open={open}
-        classNames={{ body: 'bg-[#F5F5F5] !p-3' }}
-        placement='right'
-        height={'!auto'}
-      >
-        <Form
-          form={form}
-          name='basic'
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 600 }}
-          onFinish={onFinish}
-          onChange={handleFormChange}
-          autoComplete='off'
-          initialValues={initialValues}
-        >
-          <Form.Item<FieldType>
-            label='Username'
-            name='name'
-            rules={[{ required: true, message: 'Please input your username!' }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item<FieldType>
-            label='Age'
-            name='age'
-            rules={[{ required: true, message: 'Please input your password!' }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type='primary' htmlType='submit' disabled={!isDirty || !isValid}>
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </Drawer>
+        key={'userD'}
+      />
 
       <div className='flex items-center justify-between pb-4'>
         <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
