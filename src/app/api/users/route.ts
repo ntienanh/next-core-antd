@@ -1,7 +1,9 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
-  const res = await fetch('https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user', {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -13,7 +15,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const res = await fetch('https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user', {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,12 +1,22 @@
 'use client';
 
-import { createUser, deleteUser, getDetailUser, updateUser } from '@/api-request/user';
+import { deleteUser, getDetailUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Form, FormProps, Input, Pagination, Popconfirm, Space, Table, TableColumnsType, message } from 'antd';
+import {
+  Button,
+  Form,
+  FormProps,
+  Input,
+  Popconfirm,
+  Space,
+  Table,
+  TableColumnsType,
+  message,
+  notification,
+} from 'antd';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { notification } from '../../common/NotificationAntd';
 import RadioGroup from '../RadioGroup';
 
 export type FieldType = {
@@ -15,11 +25,29 @@ export type FieldType = {
   createdAt?: string;
 };
 
-const UserTable = ({ listUser }: any) => {
+interface IUserTableProps {
+  listUser?: any;
+}
+
+async function createUser(body: any) {
+  const res = await fetch('http://localhost:3000/api/users', {
+    body: JSON.stringify(body),
+    method: 'POST',
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  return res.json();
+}
+
+const UserTable = (props: IUserTableProps) => {
+  const { listUser } = props || {};
+
   const router = useRouter();
   const [form] = Form.useForm();
   const [open, setOpen] = React.useState<boolean>(false);
   const [info, setInfo] = React.useState<string>('');
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [isDirty, setIsDirty] = React.useState<boolean>(false);
   const [isValid, setIsValid] = React.useState<boolean>(false);
   const [initialValues, setInitialValues] = React.useState<any>({});
@@ -124,15 +152,15 @@ const UserTable = ({ listUser }: any) => {
 
     // Nếu có id
     if (payload?.id || getID) {
-      (await updateUser(payload)) as any;
+      // (await updateUser(payload)) as any;
       notification.success({ message: 'Edit thành công', description: 'Edit Success' });
       router.refresh();
       form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
     } else {
       delete payload.id;
       delete payload.createdAt;
-
-      await createUser(payload);
+      console.log('payload', payload);
+      // await createUser(payload);
       notification.success({ message: 'Create thành công', description: 'Created Success' });
       router.refresh();
       form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
@@ -150,8 +178,13 @@ const UserTable = ({ listUser }: any) => {
   // Kiểm tra lại điều kiện check isDirty and valid
   // Sau khi tạo > click edit thì button submit active???
 
+  const dataSource = listUser.map((item: any) => {
+    const { id, attributes } = item;
+    return { id, ...attributes };
+  });
+
   return (
-    <div className='!w-full' key={'sad'}>
+    <div className='!w-full'>
       <UserDrawers
         form={form}
         handleFormChange={handleFormChange}
@@ -160,7 +193,6 @@ const UserTable = ({ listUser }: any) => {
         onClose={onClose}
         onFinish={onFinish}
         open={open}
-        key={'userD'}
       />
 
       <div className='flex items-center justify-between pb-4'>
@@ -175,11 +207,13 @@ const UserTable = ({ listUser }: any) => {
       </div>
 
       <Table
+        rowKey={item => item?.id}
         rowSelection={{
           type: 'checkbox',
         }}
-        dataSource={listUser}
+        dataSource={dataSource}
         columns={userColumns}
+        loading={loading}
         className='pt-3'
         pagination={false}
         bordered
@@ -187,12 +221,12 @@ const UserTable = ({ listUser }: any) => {
         scroll={{ x: 1000, y: 570 }}
       />
 
-      <div className='flex items-center justify-between pt-3'>
+      {/* <div className='flex items-center justify-between pt-3'>
         <p>
           <span className='font-bold'>{listUser?.length || '0'}</span>&nbsp;users in total
         </p>
         <Pagination defaultCurrent={1} total={50} showSizeChanger showQuickJumper />
-      </div>
+      </div> */}
     </div>
   );
 };

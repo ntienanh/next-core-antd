@@ -1,4 +1,4 @@
-'use client'
+// 'use client'
 
 import { Table, TableColumnsType } from 'antd';
 
@@ -72,7 +72,6 @@ const columns: TableColumnsType<DataType> = [
     key: 'operation',
     fixed: 'right',
     width: 100,
-    render: () => <a>action</a>,
   },
 ];
 
@@ -86,7 +85,20 @@ for (let i = 0; i < 100; i++) {
   });
 }
 
-const AdminPage = () => {
+async function getData() {
+  const res = await fetch('http://localhost:3000/api/users');
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  return res.json();
+}
+
+const AdminPage = async () => {
+  const data = await getData();
+
+
+  return <>{data?.data?.data?.map((item: any) => <div key={item?.id}>{item?.id}</div>)}</>;
+
   return (
     <div className='h-[4000px]'>
       <Table columns={columns} dataSource={data} scroll={{ x: 1500, y: 300 }} />

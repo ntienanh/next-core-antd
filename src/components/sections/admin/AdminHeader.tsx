@@ -9,7 +9,7 @@ const content = (
   <div>
     <Divider className='!m-0 !mb-2' />
     <Menu
-    className='!border-none'
+      className='!border-none'
       theme='light'
       mode='inline'
       items={[
@@ -20,8 +20,12 @@ const content = (
         },
         {
           key: '2',
-          icon: <LogoutOutlined className='!text-red-600'/>,
-          label: <Link href={'/admin/login'} className='!text-red-500'>Logout</Link>,
+          icon: <LogoutOutlined className='!text-red-600' />,
+          label: (
+            <Link href={'/admin/login'} className='!text-red-500'>
+              Logout
+            </Link>
+          ),
         },
       ]}
     />
@@ -33,7 +37,7 @@ const AdminHeader = () => {
     <Header className='fixed top-0 !z-20 flex w-full flex-1 justify-between !bg-white !pl-3 !pr-8 shadow-md'>
       <Link href={'/admin'}>
         <div className='relative h-[64px] w-[188px]'>
-          <Image src={LogoURL} alt='Logo web' fill className='object-contain' sizes='184px' />
+          <Image src={LogoURL} alt='Logo web' fill className='object-contain' sizes='184px' priority />
         </div>
       </Link>
 
