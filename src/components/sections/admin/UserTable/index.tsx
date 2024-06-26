@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteUser, getDetailUser } from '@/api-request/user';
+import { getDetailUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import {
@@ -8,6 +8,7 @@ import {
   Form,
   FormProps,
   Input,
+  Pagination,
   Popconfirm,
   Space,
   Table,
@@ -29,10 +30,29 @@ interface IUserTableProps {
   listUser?: any;
 }
 
+interface IPaginationProps {
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  total: number;
+}
+
 async function createUser(body: any) {
   const res = await fetch('http://localhost:3000/api/users', {
-    body: JSON.stringify(body),
+    body: JSON.stringify({ data: body }),
     method: 'POST',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  return res.json();
+}
+
+async function deleteUser(id: any) {
+  const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+    method: 'DELETE',
   });
   if (!res.ok) {
     throw new Error('Failed to fetch data');
@@ -47,9 +67,8 @@ const UserTable = (props: IUserTableProps) => {
   const [form] = Form.useForm();
   const [open, setOpen] = React.useState<boolean>(false);
   const [info, setInfo] = React.useState<string>('');
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [isDirty, setIsDirty] = React.useState<boolean>(false);
-  const [isValid, setIsValid] = React.useState<boolean>(false);
+  // const [isDirty, setIsDirty] = React.useState<boolean>(false);
+  // const [isValid, setIsValid] = React.useState<boolean>(false);
   const [initialValues, setInitialValues] = React.useState<any>({});
 
   const showDrawer = () => {
@@ -70,6 +89,7 @@ const UserTable = (props: IUserTableProps) => {
 
   const confirm = async (id: string) => {
     await deleteUser(id);
+    router.refresh();
     message.success(`Delete ${id}`);
   };
 
@@ -102,7 +122,8 @@ const UserTable = (props: IUserTableProps) => {
       title: 'Action',
       key: 'action',
       fixed: 'right',
-      width: 50,
+      width: 70,
+      align: 'center',
       render: (_: any, record: any) => (
         <Space size='middle'>
           <Button
@@ -134,18 +155,18 @@ const UserTable = (props: IUserTableProps) => {
     },
   ];
 
-  const handleFormChange = async () => {
-    const currentValues = form.getFieldsValue();
-    const hasChanged = Object.keys(currentValues).some(key => currentValues[key] !== initialValues?.[key]);
-    setIsDirty(hasChanged);
+  // const handleFormChange = async () => {
+  //   const currentValues = form.getFieldsValue();
+  //   const hasChanged = Object.keys(currentValues).some(key => currentValues[key] !== initialValues?.[key]);
+  //   setIsDirty(hasChanged);
 
-    try {
-      await form.validateFields();
-      setIsValid(true);
-    } catch (error) {
-      setIsValid(false);
-    }
-  };
+  //   try {
+  //     await form.validateFields();
+  //     setIsValid(true);
+  //   } catch (error) {
+  //     setIsValid(false);
+  //   }
+  // };
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
     const getID = form.getFieldValue('id');
@@ -160,12 +181,13 @@ const UserTable = (props: IUserTableProps) => {
       delete payload.id;
       delete payload.createdAt;
       console.log('payload', payload);
-      // await createUser(payload);
-      notification.success({ message: 'Create thành công', description: 'Created Success' });
-      router.refresh();
+      await createUser(payload);
+      message.success(`Created Success`);
       form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
     }
+
     setOpen(false);
+    router.refresh();
     form.resetFields();
   };
 
@@ -178,16 +200,18 @@ const UserTable = (props: IUserTableProps) => {
   // Kiểm tra lại điều kiện check isDirty and valid
   // Sau khi tạo > click edit thì button submit active???
 
-  const dataSource = listUser.map((item: any) => {
+  const dataSource = listUser?.data?.map((item: any) => {
     const { id, attributes } = item;
     return { id, ...attributes };
   });
+
+  const userPagination = (listUser?.meta?.pagination || {}) as IPaginationProps;
 
   return (
     <div className='!w-full'>
       <UserDrawers
         form={form}
-        handleFormChange={handleFormChange}
+        // handleFormChange={handleFormChange}
         info={info}
         initialValues={initialValues}
         onClose={onClose}
@@ -207,13 +231,12 @@ const UserTable = (props: IUserTableProps) => {
       </div>
 
       <Table
-        rowKey={item => item?.id}
+        rowKey={(item: any) => item?.id}
         rowSelection={{
           type: 'checkbox',
         }}
         dataSource={dataSource}
         columns={userColumns}
-        loading={loading}
         className='pt-3'
         pagination={false}
         bordered
@@ -221,12 +244,19 @@ const UserTable = (props: IUserTableProps) => {
         scroll={{ x: 1000, y: 570 }}
       />
 
-      {/* <div className='flex items-center justify-between pt-3'>
+      <div className='flex items-center justify-between pt-3'>
         <p>
-          <span className='font-bold'>{listUser?.length || '0'}</span>&nbsp;users in total
+          <span className='font-bold'>{listUser?.data?.length || '0'}</span>&nbsp;users in total
         </p>
-        <Pagination defaultCurrent={1} total={50} showSizeChanger showQuickJumper />
-      </div> */}
+
+        <Pagination
+          defaultCurrent={userPagination.page}
+          pageSize={userPagination.pageSize}
+          total={userPagination.total}
+          showSizeChanger
+          showTitle={true}
+        />
+      </div>
     </div>
   );
 };

@@ -1,9 +1,12 @@
-export const dynamic = 'force-dynamic';
+'use server';
 
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
+    method: 'GET',
+    next: { tags: ['test'], revalidate: 3600 },
     headers: {
       'Content-Type': 'application/json',
     },
@@ -15,13 +18,19 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });
+
+  if (res.status == 200) {
+    revalidateTag('test');
+    revalidatePath('/admin/user');
+  }
+
   const data = await res.json();
 
   return NextResponse.json(data);

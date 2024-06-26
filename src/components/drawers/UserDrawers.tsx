@@ -1,6 +1,7 @@
-import { Button, Drawer, Form, FormInstance, Input } from 'antd';
+import { Drawer, Form, FormInstance, Input } from 'antd';
 import { Store } from 'antd/es/form/interface';
 import { FieldType } from '../sections/admin/UserTable';
+import SubmitBtn from '../elements/SubmitBtn';
 
 interface IUserDrawersProps {
   info?: string;
@@ -53,9 +54,10 @@ const UserDrawers = (props: IUserDrawersProps) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type='primary' htmlType='submit'>
+          {/* <Button type='primary' htmlType='submit'>
             Submit
-          </Button>
+          </Button> */}
+          <SubmitBtn/>
         </Form.Item>
       </Form>
     </Drawer>

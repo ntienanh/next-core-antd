@@ -1,6 +1,7 @@
 // 'use client'
 
 import { Table, TableColumnsType } from 'antd';
+import { Metadata } from 'next';
 
 interface DataType {
   key: React.Key;
@@ -93,11 +94,18 @@ async function getData() {
   return res.json();
 }
 
+export const metadata: Metadata = {
+  title: 'Admin',
+  description: 'Admin home page',
+}
+
 const AdminPage = async () => {
   const data = await getData();
 
 
-  return <>{data?.data?.data?.map((item: any) => <div key={item?.id}>{item?.id}</div>)}</>;
+  return <div>
+    <p>List id users</p>
+    {data?.data?.data?.map((item: any) => <div key={item?.id}>{item?.id}</div>)}</div>;
 
   return (
     <div className='h-[4000px]'>
