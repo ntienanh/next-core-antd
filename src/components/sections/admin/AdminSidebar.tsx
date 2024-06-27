@@ -11,26 +11,26 @@ type MenuItem = GetProp<MenuProps, 'items'>[number];
 
 const items: MenuItem[] = [
   {
-    key: '1',
+    key: 'home',
     icon: <MailOutlined />,
     label: <Link href={'/admin'}>Trang chủ</Link>,
   },
   {
-    key: '2',
+    key: 'user',
     icon: <CalendarOutlined />,
     label: <Link href={'/admin/user'}>User</Link>,
   },
   {
-    key: 'user',
-    label: 'Navigation Two',
+    key: 'parent',
+    label: 'Nested Menu',
     icon: <AppstoreOutlined />,
     children: [
-      { key: '3', label: <Link href={'/admin/user/userTest'}>User Test</Link> },
-      { key: '4', label: 'Option 4' },
+      { key: 'child1', label: <Link href={'/admin/parent/child1'}>parent/child1</Link> },
+      { key: 'child2', label: <Link href={'/admin/parent/child2'}>parent/child2</Link> },
     ],
   },
   {
-    key: '5',
+    key: 'media',
     icon: <LinkOutlined />,
     label: <Link href={'/admin/media'}>Media Library</Link>,
   },
@@ -40,22 +40,26 @@ const AdminSidebar = () => {
   const pathname = usePathname();
   const [toggle, setToggle] = React.useState<boolean>(false);
 
-  const parrentActive = () => {
-    const case1 = pathname.includes('/admin/user');
+  const itemActive = () => {
+    const pathList: any = {
+      '/admin/user': 'user',
+      '/admin/media': 'media',
+      '/admin/parent/child1': 'child1',
+      '/admin/parent/child2': 'child2',
+    };
 
-    if (case1) return ['user'];
+    for (const path in pathList) {
+      if (pathname.startsWith(path)) {
+        return [pathList[path]];
+      }
+    }
+    return ['home'];
   };
 
-  const itemActive = () => {
-    switch (pathname) {
-      case '/admin/user':
-        return ['2'];
-      case '/admin/media':
-        return ['5'];
-      case '/admin/user/userTest':
-        return ['3'];
-      default:
-        return ['1'];
+  const defaultOpenKeys = () => {
+    switch (true) {
+      case pathname.startsWith('/admin/parent'):
+        return ['parent'];
     }
   };
 
@@ -70,7 +74,7 @@ const AdminSidebar = () => {
     >
       <Menu
         theme='light'
-        defaultOpenKeys={parrentActive()}
+        defaultOpenKeys={defaultOpenKeys()}
         selectedKeys={itemActive()}
         className='!mt-4 h-auto'
         mode='inline'

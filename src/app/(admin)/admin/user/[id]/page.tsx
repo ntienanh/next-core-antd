@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const UserDetail = async ({ params }: any) => {
   const data = await getDetailUser(params.id);
 
-  return <div>UserDetail</div>;
+  return <div>UserDetail - {data?.data?.id}</div>;
 };
 
 export default UserDetail;

@@ -15,6 +15,7 @@
     "clsx": "^2.1.1",
     "next": "14.2.4",
     "nextjs-toploader": "^1.6.12",
+    "nprogress": "^0.2.0",
     "react": "^18",
     "react-dom": "^18",
     "tabler-icons": "^1.35.0"
@@ -24,6 +25,7 @@
     "@eslint/js": "^9.5.0",
     "@types/eslint": "^8.56.10",
     "@types/node": "^20",
+    "@types/nprogress": "^0.2.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^7.13.0",

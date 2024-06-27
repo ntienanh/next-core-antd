@@ -1,10 +1,10 @@
 'use client';
 
-import { createUser, deleteUser, getDetailUser, updateUser } from '@/api-request/user';
+import { createUser, deleteUser, updateUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
+import { useRouter } from '@/hooks/useRouter';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Form, FormProps, Input, Popconfirm, Space, Table, TableColumnsType, message } from 'antd';
-import { useRouter } from 'next/navigation';
 import React from 'react';
 import RadioGroup from '../RadioGroup';
 
@@ -94,16 +94,8 @@ const UserTable = (props: IUserTableProps) => {
           <Button
             size='small'
             type='default'
-            onClick={async () => {
-              router.refresh();
-              const { data } = await getDetailUser(record?.id);
-              const { id, attributes } = data;
-              const { name, age, createdAt } = attributes;
-
-              form.setFieldsValue({ id, name, age, createdAt });
-              setInfo(name);
-              setOpen(true);
-              // setInitialValues({ id, name, age, createdAt });
+            onClick={() => {
+              router.push(`/admin/user/${record.id}`);
             }}
             icon={<EyeOutlined />}
           />
@@ -124,25 +116,11 @@ const UserTable = (props: IUserTableProps) => {
     },
   ];
 
-  // const handleFormChange = async () => {
-  //   const currentValues = form.getFieldsValue();
-  //   const hasChanged = Object.keys(currentValues).some(key => currentValues[key] !== initialValues?.[key]);
-  //   setIsDirty(hasChanged);
-
-  //   try {
-  //     await form.validateFields();
-  //     setIsValid(true);
-  //   } catch (error) {
-  //     setIsValid(false);
-  //   }
-  // };
-
   const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
     const getID = form.getFieldValue('id');
 
     if (payload?.id || getID) {
       await updateUser(payload);
-
       message.success(`Updated Success`);
     } else {
       delete payload.id;
@@ -156,19 +134,12 @@ const UserTable = (props: IUserTableProps) => {
     setOpen(false);
   };
 
-  // Kiểm tra lại điều kiện check isDirty and valid
-  // Sau khi tạo > click edit thì button submit active???
-
   const dataSource = listUser?.data?.map((item: any) => {
     const { id, attributes } = item;
     return { id, ...attributes };
   });
 
   const userPagination = (listUser?.meta?.pagination || {}) as IPaginationProps;
-
-  React.useEffect(() => {
-    router.refresh();
-  }, [listUser]);
 
   return (
     <div className='!w-full'>
