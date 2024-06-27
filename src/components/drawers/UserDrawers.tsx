@@ -1,7 +1,7 @@
 import { Drawer, Form, FormInstance, Input } from 'antd';
 import { Store } from 'antd/es/form/interface';
-import { FieldType } from '../sections/admin/UserTable';
 import SubmitBtn from '../elements/SubmitBtn';
+import { FieldType } from '../sections/admin/UserTable';
 
 interface IUserDrawersProps {
   info?: string;
@@ -28,15 +28,17 @@ const UserDrawers = (props: IUserDrawersProps) => {
     >
       <Form
         form={form}
-        name='basic'
+        name='form basic'
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 600 }}
         onFinish={onFinish}
-        onChange={handleFormChange}
         autoComplete='off'
-        initialValues={initialValues}
       >
+        <Form.Item<FieldType> label='ID' name='id'>
+          <Input disabled />
+        </Form.Item>
+
         <Form.Item<FieldType>
           label='Username'
           name='name'
@@ -57,7 +59,7 @@ const UserDrawers = (props: IUserDrawersProps) => {
           {/* <Button type='primary' htmlType='submit'>
             Submit
           </Button> */}
-          <SubmitBtn/>
+          <SubmitBtn />
         </Form.Item>
       </Form>
     </Drawer>

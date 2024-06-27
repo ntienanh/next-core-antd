@@ -1,4 +1,4 @@
-'use server'
+'use server';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,6 +17,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: numb
 
 export async function PUT(request: NextRequest, { params }: { params: { id: number } }) {
   const body = await request.json();
+  console.log('body', body);
+  console.log('params', params.id);
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, {
     method: 'PUT',
     headers: {
@@ -24,6 +26,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: numb
     },
     body: JSON.stringify(body),
   });
+
+  if (res.status == 200) {
+    revalidateTag('test');
+    revalidatePath('/admin/user');
+  }
   const data = await res.json();
 
   return NextResponse.json(data);

@@ -1,26 +1,15 @@
 'use client';
 
-import { getDetailUser } from '@/api-request/user';
+import { createUser, deleteUser, getDetailUser, updateUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import {
-  Button,
-  Form,
-  FormProps,
-  Input,
-  Pagination,
-  Popconfirm,
-  Space,
-  Table,
-  TableColumnsType,
-  message,
-  notification,
-} from 'antd';
+import { Button, Form, FormProps, Input, Popconfirm, Space, Table, TableColumnsType, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RadioGroup from '../RadioGroup';
 
 export type FieldType = {
+  id?: string;
   name?: string;
   age?: string;
   createdAt?: string;
@@ -37,29 +26,6 @@ interface IPaginationProps {
   total: number;
 }
 
-async function createUser(body: any) {
-  const res = await fetch('http://localhost:3000/api/users', {
-    body: JSON.stringify({ data: body }),
-    method: 'POST',
-  });
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-
-  return res.json();
-}
-
-async function deleteUser(id: any) {
-  const res = await fetch(`http://localhost:3000/api/users/${id}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  return res.json();
-}
-
 const UserTable = (props: IUserTableProps) => {
   const { listUser } = props || {};
 
@@ -69,7 +35,6 @@ const UserTable = (props: IUserTableProps) => {
   const [info, setInfo] = React.useState<string>('');
   // const [isDirty, setIsDirty] = React.useState<boolean>(false);
   // const [isValid, setIsValid] = React.useState<boolean>(false);
-  const [initialValues, setInitialValues] = React.useState<any>({});
 
   const showDrawer = () => {
     const getID = form.getFieldValue('id');
@@ -130,11 +95,15 @@ const UserTable = (props: IUserTableProps) => {
             size='small'
             type='default'
             onClick={async () => {
-              const { id, name, age, createdAt } = await getDetailUser(record?.id);
+              router.refresh();
+              const { data } = await getDetailUser(record?.id);
+              const { id, attributes } = data;
+              const { name, age, createdAt } = attributes;
+
               form.setFieldsValue({ id, name, age, createdAt });
               setInfo(name);
               setOpen(true);
-              setInitialValues({ id, name, age, createdAt });
+              // setInitialValues({ id, name, age, createdAt });
             }}
             icon={<EyeOutlined />}
           />
@@ -171,31 +140,21 @@ const UserTable = (props: IUserTableProps) => {
   const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
     const getID = form.getFieldValue('id');
 
-    // Nếu có id
     if (payload?.id || getID) {
-      // (await updateUser(payload)) as any;
-      notification.success({ message: 'Edit thành công', description: 'Edit Success' });
-      router.refresh();
-      form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
+      await updateUser(payload);
+
+      message.success(`Updated Success`);
     } else {
       delete payload.id;
       delete payload.createdAt;
-      console.log('payload', payload);
       await createUser(payload);
       message.success(`Created Success`);
-      form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
     }
 
-    setOpen(false);
     router.refresh();
     form.resetFields();
+    setOpen(false);
   };
-
-  React.useEffect(() => {
-    if (initialValues) {
-      form.setFieldsValue(initialValues);
-    }
-  }, [initialValues]);
 
   // Kiểm tra lại điều kiện check isDirty and valid
   // Sau khi tạo > click edit thì button submit active???
@@ -207,16 +166,19 @@ const UserTable = (props: IUserTableProps) => {
 
   const userPagination = (listUser?.meta?.pagination || {}) as IPaginationProps;
 
+  React.useEffect(() => {
+    router.refresh();
+  }, [listUser]);
+
   return (
     <div className='!w-full'>
       <UserDrawers
         form={form}
-        // handleFormChange={handleFormChange}
         info={info}
-        initialValues={initialValues}
         onClose={onClose}
         onFinish={onFinish}
         open={open}
+        // handleFormChange={handleFormChange}
       />
 
       <div className='flex items-center justify-between pb-4'>
@@ -244,7 +206,7 @@ const UserTable = (props: IUserTableProps) => {
         scroll={{ x: 1000, y: 570 }}
       />
 
-      <div className='flex items-center justify-between pt-3'>
+      {/* <div className='flex items-center justify-between pt-3'>
         <p>
           <span className='font-bold'>{listUser?.data?.length || '0'}</span>&nbsp;users in total
         </p>
@@ -256,7 +218,7 @@ const UserTable = (props: IUserTableProps) => {
           showSizeChanger
           showTitle={true}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

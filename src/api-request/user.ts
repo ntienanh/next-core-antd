@@ -1,14 +1,15 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
+export async function getListUser() {
+  const res = await fetch('http://localhost:3000/api/users');
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  return res.json();
+}
 
-// export const getListUser = async () => {
-//   const res = await fetch('https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user');
-//   return res?.json();
-// };
-
-export const getListUser = async () => {
-  const res = await fetch('https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user', {
+export const getDetailUser = async (id: string) => {
+  const res = await fetch(`http://localhost:3000/api/users/${id}`, {
     method: 'GET',
     next: { tags: ['user'], revalidate: 3600 },
   });
@@ -18,58 +19,39 @@ export const getListUser = async () => {
   return res?.json();
 };
 
-export const getDetailUser = async (id: string) => {
-  const res = await fetch(`https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user/${id}`, {
-    method: 'GET',
-    next: { tags: [`user/${id}`] },
-  });
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  return res?.json();
-};
-
-export const updateUser = async (payload: any) => {
-  const res = await fetch(`https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user/${payload.id}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (res.status == 200) {
-    revalidateTag('user');
-    revalidateTag(`user/${payload.id}`);
-  }
-};
-
-export const createUser = async (payload: any) => {
-  const res = await fetch(`https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user`, {
+export async function createUser(body: any) {
+  const res = await fetch('http://localhost:3000/api/users', {
+    body: JSON.stringify({ data: body }),
     method: 'POST',
-    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
     throw new Error('Failed to fetch data');
-  }
-
-  if (res.status == 200) {
-    revalidateTag('user');
   }
 
   return res.json();
-};
+}
 
-export const deleteUser = async (id: any) => {
-  const res = await fetch(`https://64feb9e6f8b9eeca9e28f8d6.mockapi.io/user/${id}`, {
+export async function deleteUser(id: string) {
+  const res = await fetch(`http://localhost:3000/api/users/${id}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  return res.json();
+}
+
+export async function updateUser(payload: any) {
+  const { id, ...body } = payload;
+  const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+    body: JSON.stringify({ data: body }),
+    method: 'PUT',
   });
 
-  if (res.status == 200) {
-    revalidateTag('user');
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
   }
-};
+
+  return res.json();
+}
