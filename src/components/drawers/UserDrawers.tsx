@@ -1,25 +1,20 @@
-import { Drawer, Form, FormInstance, Input } from 'antd';
-import { Store } from 'antd/es/form/interface';
-import SubmitBtn from '../elements/SubmitBtn';
+import { Button, Drawer, Form, FormInstance, Input } from 'antd';
 import { FieldType } from '../sections/admin/UserTable';
 
 interface IUserDrawersProps {
-  info?: string;
   open?: boolean;
   form: FormInstance<any>;
   onClose?: () => void;
   onFinish?: any;
-  handleFormChange?: () => void;
-  initialValues?: Store | undefined;
 }
 
 const UserDrawers = (props: IUserDrawersProps) => {
-  const { info, onClose, open, form, handleFormChange, onFinish, initialValues } = props || {};
+  const { onClose, open, form, onFinish } = props || {};
 
   return (
     <Drawer
       getContainer={false}
-      title={info || 'Create new user'}
+      title={'Create new user'}
       onClose={onClose}
       open={open}
       classNames={{ body: 'bg-[#F5F5F5] !p-3' }}
@@ -56,10 +51,9 @@ const UserDrawers = (props: IUserDrawersProps) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          {/* <Button type='primary' htmlType='submit'>
+          <Button type='primary' htmlType='submit'>
             Submit
-          </Button> */}
-          <SubmitBtn />
+          </Button>
         </Form.Item>
       </Form>
     </Drawer>

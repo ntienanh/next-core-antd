@@ -1,29 +1,37 @@
 'use client';
 
-import { createUser, deleteUser, updateUser } from '@/api-request/user';
+import { createUser, deleteUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
 import { useRouter } from '@/hooks/useRouter';
-import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Form, FormProps, Input, Popconfirm, Space, Table, TableColumnsType, message } from 'antd';
+import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Checkbox,
+  Form,
+  FormProps,
+  Input,
+  Popconfirm,
+  Popover,
+  Space,
+  Table,
+  TableColumnsType,
+  Tooltip,
+  message,
+} from 'antd';
 import React from 'react';
 import RadioGroup from '../RadioGroup';
 
-export type FieldType = {
-  id?: string;
-  name?: string;
-  age?: string;
-  createdAt?: string;
-};
+export type FieldType =
+  | {
+      id?: string;
+      name?: string;
+      age?: string;
+      createdAt?: string;
+    }
+  | any;
 
 interface IUserTableProps {
   listUser?: any;
-}
-
-interface IPaginationProps {
-  page: number;
-  pageCount: number;
-  pageSize: number;
-  total: number;
 }
 
 const UserTable = (props: IUserTableProps) => {
@@ -32,14 +40,10 @@ const UserTable = (props: IUserTableProps) => {
   const router = useRouter();
   const [form] = Form.useForm();
   const [open, setOpen] = React.useState<boolean>(false);
-  const [info, setInfo] = React.useState<string>('');
-  // const [isDirty, setIsDirty] = React.useState<boolean>(false);
-  // const [isValid, setIsValid] = React.useState<boolean>(false);
 
   const showDrawer = () => {
     const getID = form.getFieldValue('id');
     if (getID === undefined) {
-      setInfo('');
       form.resetFields();
       form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
     }
@@ -48,7 +52,6 @@ const UserTable = (props: IUserTableProps) => {
 
   const onClose = () => {
     setOpen(false);
-    setInfo('');
     form.setFieldsValue({ id: '', name: '', age: '', createdAt: '' });
   };
 
@@ -64,6 +67,8 @@ const UserTable = (props: IUserTableProps) => {
       dataIndex: 'id',
       key: 'id',
       width: 50,
+      sorter: (a, b) => a.id - b.id,
+      sortDirections: ['descend'],
     },
     {
       title: 'Name',
@@ -117,17 +122,10 @@ const UserTable = (props: IUserTableProps) => {
   ];
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
-    const getID = form.getFieldValue('id');
-
-    if (payload?.id || getID) {
-      await updateUser(payload);
-      message.success(`Updated Success`);
-    } else {
-      delete payload.id;
-      delete payload.createdAt;
-      await createUser(payload);
-      message.success(`Created Success`);
-    }
+    delete payload.id;
+    delete payload.createdAt;
+    await createUser(payload);
+    message.success(`Created Success`);
 
     router.refresh();
     form.resetFields();
@@ -139,20 +137,19 @@ const UserTable = (props: IUserTableProps) => {
     return { id, ...attributes };
   });
 
-  const userPagination = (listUser?.meta?.pagination || {}) as IPaginationProps;
+  const defaultCheckedList = userColumns.map(item => item.key as string);
+  const [checkedList, setCheckedList] = React.useState(defaultCheckedList);
+
+  const newColumns = userColumns.map(item => ({
+    ...item,
+    hidden: !checkedList.includes(item.key as string),
+  }));
 
   return (
     <div className='!w-full'>
-      <UserDrawers
-        form={form}
-        info={info}
-        onClose={onClose}
-        onFinish={onFinish}
-        open={open}
-        // handleFormChange={handleFormChange}
-      />
+      <UserDrawers form={form} onClose={onClose} onFinish={onFinish} open={open} />
 
-      <div className='flex items-center justify-between pb-4'>
+      <div className='flex items-center justify-between pb-2'>
         <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
           Add new User
         </Button>
@@ -160,6 +157,35 @@ const UserTable = (props: IUserTableProps) => {
         <div className='flex items-center justify-between gap-3'>
           <Input prefix={<SearchOutlined className='!text-gray-400' />} placeholder='Search by name' size='large' />
           <RadioGroup />
+
+          <Tooltip title='Settings'>
+            <Popover
+              content={userColumns.map((item: any) => (
+                <div key={item.title} className='flex gap-2'>
+                  <Checkbox
+                    key={item.title}
+                    name={item.label}
+                    disabled={['Action', 'ID'].includes(item.title)}
+                    onChange={() => {
+                      if (checkedList.includes(item.key)) {
+                        setCheckedList(checkedList.filter(key => key !== item.key));
+                      } else {
+                        setCheckedList([...checkedList, item.key]);
+                      }
+                    }}
+                  />
+
+                  <p>{item.title}</p>
+                </div>
+              ))}
+              arrowContent
+              placement='bottomRight'
+              title='Hidden fields'
+              trigger='click'
+            >
+              <Button shape='round' icon={<SettingOutlined />} className='!h-[40px] !w-[40px] !rounded' />
+            </Popover>
+          </Tooltip>
         </div>
       </div>
 
@@ -169,27 +195,23 @@ const UserTable = (props: IUserTableProps) => {
           type: 'checkbox',
         }}
         dataSource={dataSource}
-        columns={userColumns}
+        columns={newColumns}
         className='pt-3'
-        pagination={false}
+        pagination={{
+          showQuickJumper: true,
+          defaultPageSize: 10,
+          showSizeChanger: true,
+          showTotal: () => (
+            <p>
+              <span className='font-bold'>{listUser?.data?.length || '0'}</span>&nbsp;users in total
+            </p>
+          ),
+          pageSizeOptions: ['10', '20', '30'],
+        }}
         bordered
         // sroll X phải lớn hơn tổng width của các col width
-        scroll={{ x: 1000, y: 570 }}
+        scroll={{ x: 1000, y: 572 }}
       />
-
-      {/* <div className='flex items-center justify-between pt-3'>
-        <p>
-          <span className='font-bold'>{listUser?.data?.length || '0'}</span>&nbsp;users in total
-        </p>
-
-        <Pagination
-          defaultCurrent={userPagination.page}
-          pageSize={userPagination.pageSize}
-          total={userPagination.total}
-          showSizeChanger
-          showTitle={true}
-        />
-      </div> */}
     </div>
   );
 };

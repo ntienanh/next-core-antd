@@ -18,9 +18,7 @@ const UserPage = async () => {
   const listUser = await getListUser();
 
   return (
-    <div className='flex w-full flex-col gap-3 !overflow-hidden'>
-      <div className='text-[36px] font-medium'>User List</div>
-
+    <div className='!overflow-hidden'>
       <UserTable listUser={listUser?.data} />
     </div>
   );
