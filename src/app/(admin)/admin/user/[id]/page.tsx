@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
 
 async function getDetailUser(id: string) {
   const res = await fetch(`http://localhost:3000/api/users/${id}`);
@@ -11,12 +11,12 @@ async function getDetailUser(id: string) {
 export const metadata: Metadata = {
   title: 'User detail',
   description: 'User detail User detail',
-}
+};
 
 const UserDetail = async ({ params }: any) => {
   const data = await getDetailUser(params.id);
 
-  return <div>UserDetail - {data?.data?.id}</div>;
+  return <div className='flex flex-col gap-3'>UserDetail - {data?.data?.id}</div>;
 };
 
 export default UserDetail;
