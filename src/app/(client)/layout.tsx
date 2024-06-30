@@ -7,6 +7,7 @@ export default function ClientLayout({
     <div>
       <div>Client Header</div>
       {children}
+      <div>Footer</div>
     </div>
   );
 }

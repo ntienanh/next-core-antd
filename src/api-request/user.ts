@@ -1,10 +1,29 @@
 'use server';
 
-export async function getListUser() {
-  const res = await fetch('http://localhost:3000/api/users');
+import { revalidateTag } from 'next/cache';
+
+export async function filterUserByName(data: string) {
+  const res = await fetch(`http://localhost:3000/api/users?filters[name][$contains]=${data}`);
   if (!res.ok) {
     throw new Error('Failed to fetch data');
   }
+  if (res.status == 200) {
+    revalidateTag('user');
+  }
+
+  return res.json();
+}
+
+export async function getListUser() {
+  const res = await fetch('http://localhost:3000/api/users', {
+    method: 'GET',
+    next: { tags: ['user'], revalidate: 3600 },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
   return res.json();
 }
 

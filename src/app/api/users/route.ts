@@ -3,8 +3,12 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const query = searchParams.get('query');
+  const filter = query ? `${query}` : '';
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests?${filter}`, {
     method: 'GET',
     next: { tags: ['test'], revalidate: 3600 },
     headers: {
@@ -12,6 +16,12 @@ export async function GET() {
     },
   });
   const data = await res.json();
+
+  if (request && query) {
+    // console.log('123123321');
+    revalidateTag('test');
+    revalidatePath('/admin/user');
+  }
 
   return NextResponse.json({ data });
 }

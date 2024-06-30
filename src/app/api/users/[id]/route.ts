@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest, { params }: { params: { id: number } }) {
+  console.log('adsdasdas', params);
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, {
     next: { revalidate: 10 },
     headers: {

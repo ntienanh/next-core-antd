@@ -1,18 +1,32 @@
-import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export const useDebounce = (value: any, delay = 500) => {
-  const [debouncedValue, setDebouncedValue] = React.useState('');
-  const timerRef = React.useRef();
+export function useDebouncedValue<T = any>(value: T, wait: number, options = { leading: false }) {
+  const [_value, setValue] = useState(value);
+  const mountedRef = useRef(false);
+  const timeoutRef = useRef<number | null>(null);
+  const cooldownRef = useRef(false);
 
-  React.useEffect(() => {
-    timerRef.current === setTimeout(() => setDebouncedValue(value), delay);
+  const cancel = () => window.clearTimeout(timeoutRef.current!);
 
-    return () => {
-      clearTimeout(timerRef.current);
-    };
-  }, [value, delay]);
+  useEffect(() => {
+    if (mountedRef.current) {
+      if (!cooldownRef.current && options.leading) {
+        cooldownRef.current = true;
+        setValue(value);
+      } else {
+        cancel();
+        timeoutRef.current = window.setTimeout(() => {
+          cooldownRef.current = false;
+          setValue(value);
+        }, wait);
+      }
+    }
+  }, [value, options.leading, wait]);
 
-  return debouncedValue;
-};
+  useEffect(() => {
+    mountedRef.current = true;
+    return cancel;
+  }, []);
 
-// https://www.telerik.com/blogs/how-to-create-custom-debounce-hook-react
+  return [_value, cancel] as const;
+}

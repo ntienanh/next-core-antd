@@ -6,10 +6,11 @@ interface IUserDrawersProps {
   form: FormInstance<any>;
   onClose?: () => void;
   onFinish?: any;
+  loading?: boolean;
 }
 
 const UserDrawers = (props: IUserDrawersProps) => {
-  const { onClose, open, form, onFinish } = props || {};
+  const { onClose, open, form, onFinish, loading } = props || {};
 
   return (
     <Drawer
@@ -51,7 +52,7 @@ const UserDrawers = (props: IUserDrawersProps) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type='primary' htmlType='submit'>
+          <Button disabled={loading} type='primary' htmlType='submit'>
             Submit
           </Button>
         </Form.Item>

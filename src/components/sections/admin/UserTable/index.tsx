@@ -2,6 +2,7 @@
 
 import { createUser, deleteUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
+import { useDebouncedValue } from '@/hooks/useDebounce';
 import { useRouter } from '@/hooks/useRouter';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
 import {
@@ -21,17 +22,20 @@ import {
 import React from 'react';
 import RadioGroup from '../RadioGroup';
 
-export type FieldType =
-  | {
-      id?: string;
-      name?: string;
-      age?: string;
-      createdAt?: string;
-    }
-  | any;
+export type FieldType = { id?: string; name?: string; age?: string; createdAt?: string } | any;
 
 interface IUserTableProps {
   listUser?: any;
+}
+
+async function filterUserByName(data: string) {
+  const body = data ? `filters[name][$contains]=${data}` : '';
+  const res = await fetch(`http://localhost:3000/api/users?query=${body}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  return res.json();
 }
 
 const UserTable = (props: IUserTableProps) => {
@@ -40,8 +44,27 @@ const UserTable = (props: IUserTableProps) => {
   const router = useRouter();
   const [form] = Form.useForm();
   const [open, setOpen] = React.useState<boolean>(false);
+  const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [value, setValue] = React.useState('');
+  const [filter, setFilter] = React.useState([]);
+  const [debounced] = useDebouncedValue(value, 500);
+
+  const filterData = async () => {
+    const res = await filterUserByName(debounced);
+    setFilter(res.data);
+    return res;
+  };
+
+  React.useEffect(() => {
+    filterData();
+    router.refresh();
+  }, [debounced]);
 
   const showDrawer = () => {
+    if (debounced) {
+      setValue('');
+    }
     const getID = form.getFieldValue('id');
     if (getID === undefined) {
       form.resetFields();
@@ -56,9 +79,13 @@ const UserTable = (props: IUserTableProps) => {
   };
 
   const confirm = async (id: string) => {
-    await deleteUser(id);
+    try {
+      await deleteUser(id);
+      message.success(`Deleted Success ${id}`);
+    } catch (error) {
+      message.error(`Delete fail: ${error}`);
+    }
     router.refresh();
-    message.success(`Delete ${id}`);
   };
 
   const userColumns: TableColumnsType<FieldType> = [
@@ -124,15 +151,22 @@ const UserTable = (props: IUserTableProps) => {
   const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
     delete payload.id;
     delete payload.createdAt;
-    await createUser(payload);
-    message.success(`Created Success`);
-
+    try {
+      setLoading(true);
+      await createUser(payload);
+      message.success(`Created Success`);
+    } catch (error) {
+      message.error(`Created fail: ${error}`);
+    }
+    setLoading(false);
     router.refresh();
     form.resetFields();
     setOpen(false);
   };
 
-  const dataSource = listUser?.data?.map((item: any) => {
+  const aaa = debounced ? filter : listUser;
+
+  const dataSource = aaa?.data?.map((item: any) => {
     const { id, attributes } = item;
     return { id, ...attributes };
   });
@@ -147,15 +181,51 @@ const UserTable = (props: IUserTableProps) => {
 
   return (
     <div className='!w-full'>
-      <UserDrawers form={form} onClose={onClose} onFinish={onFinish} open={open} />
+      <UserDrawers form={form} onClose={onClose} onFinish={onFinish} open={open} loading={loading} />
 
       <div className='flex items-center justify-between pb-2'>
-        <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
-          Add new User
-        </Button>
+        <div className='flex items-center gap-3'>
+          <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
+            Add new User
+          </Button>
+
+          {selectedRowKeys.length > 0 && (
+            <Popconfirm
+              placement='rightBottom'
+              title='Are you sure!'
+              description={`Delete ${selectedRowKeys.length} item`}
+              onConfirm={async () => {
+                try {
+                  const deletePromises = selectedRowKeys.map((key: any) => deleteUser(key));
+                  await Promise.all(deletePromises);
+                  message.success(`All items Deleted`);
+                } catch (error) {
+                  message.error(`Cannot delete: ${error}`);
+                }
+
+                setSelectedRowKeys([]);
+                router.refresh();
+              }}
+              onCancel={() => null}
+              okText='Delete'
+              okType='danger'
+              cancelText='Cancel'
+            >
+              <Button size='large' danger>
+                Delele {selectedRowKeys.length} item
+              </Button>
+            </Popconfirm>
+          )}
+        </div>
 
         <div className='flex items-center justify-between gap-3'>
-          <Input prefix={<SearchOutlined className='!text-gray-400' />} placeholder='Search by name' size='large' />
+          <Input
+            allowClear
+            size='large'
+            placeholder='Search by name'
+            onChange={e => setValue(e.target.value)}
+            prefix={<SearchOutlined className='!text-gray-400' />}
+          />
           <RadioGroup />
 
           <Tooltip title='Settings'>
@@ -189,10 +259,21 @@ const UserTable = (props: IUserTableProps) => {
         </div>
       </div>
 
+      {/* Cho thằng này thành ssr có nhận 2 data từ ssr listUser/FilterListUserbyName */}
+      {/* <TableBase
+        dataSource={dataSource}
+        filterUser={filter}
+        listUser={listUser}
+        newColumns={newColumns}
+        selectedRowKeys={selectedRowKeys}
+        setSelectedRowKeys={() => selectedRowKeys}
+      /> */}
       <Table
         rowKey={(item: any) => item?.id}
         rowSelection={{
           type: 'checkbox',
+          onChange: selectedRowKeys => setSelectedRowKeys(selectedRowKeys),
+          selectedRowKeys: selectedRowKeys,
         }}
         dataSource={dataSource}
         columns={newColumns}
@@ -203,7 +284,7 @@ const UserTable = (props: IUserTableProps) => {
           showSizeChanger: true,
           showTotal: () => (
             <p>
-              <span className='font-bold'>{listUser?.data?.length || '0'}</span>&nbsp;users in total
+              <span className='font-bold'>{aaa?.data?.length || '0'}</span>&nbsp;users in total
             </p>
           ),
           pageSizeOptions: ['10', '20', '30'],
