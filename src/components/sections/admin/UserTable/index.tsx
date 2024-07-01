@@ -2,15 +2,15 @@
 
 import { createUser, deleteUser } from '@/api-request/user';
 import UserDrawers from '@/components/drawers/UserDrawers';
-import { useDebouncedValue } from '@/hooks/useDebounce';
 import { useRouter } from '@/hooks/useRouter';
-import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
+import { useSearchTable } from '@/hooks/useSearchTable';
+import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import {
   Button,
   Checkbox,
+  Divider,
   Form,
   FormProps,
-  Input,
   Popconfirm,
   Popover,
   Space,
@@ -22,20 +22,10 @@ import {
 import React from 'react';
 import RadioGroup from '../RadioGroup';
 
-export type FieldType = { id?: string; name?: string; age?: string; createdAt?: string } | any;
+export type DataType = { id?: string; name?: string; age?: string; createdAt?: string } | any;
 
 interface IUserTableProps {
   listUser?: any;
-}
-
-async function filterUserByName(data: string) {
-  const body = data ? `filters[name][$contains]=${data}` : '';
-  const res = await fetch(`http://localhost:3000/api/users?query=${body}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-
-  return res.json();
 }
 
 const UserTable = (props: IUserTableProps) => {
@@ -46,25 +36,8 @@ const UserTable = (props: IUserTableProps) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const [value, setValue] = React.useState('');
-  const [filter, setFilter] = React.useState([]);
-  const [debounced] = useDebouncedValue(value, 500);
-
-  const filterData = async () => {
-    const res = await filterUserByName(debounced);
-    setFilter(res.data);
-    return res;
-  };
-
-  React.useEffect(() => {
-    filterData();
-    router.refresh();
-  }, [debounced]);
 
   const showDrawer = () => {
-    if (debounced) {
-      setValue('');
-    }
     const getID = form.getFieldValue('id');
     if (getID === undefined) {
       form.resetFields();
@@ -88,7 +61,9 @@ const UserTable = (props: IUserTableProps) => {
     router.refresh();
   };
 
-  const userColumns: TableColumnsType<FieldType> = [
+  const { getColumnSearchProps, searchValue } = useSearchTable();
+
+  const userColumns: TableColumnsType<DataType> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -102,6 +77,7 @@ const UserTable = (props: IUserTableProps) => {
       dataIndex: 'name',
       key: 'name',
       width: 150,
+      ...getColumnSearchProps('name'),
     },
     {
       title: 'Age',
@@ -148,7 +124,7 @@ const UserTable = (props: IUserTableProps) => {
     },
   ];
 
-  const onFinish: FormProps<FieldType>['onFinish'] = async (payload: any) => {
+  const onFinish: FormProps<DataType>['onFinish'] = async (payload: any) => {
     delete payload.id;
     delete payload.createdAt;
     try {
@@ -164,9 +140,7 @@ const UserTable = (props: IUserTableProps) => {
     setOpen(false);
   };
 
-  const aaa = debounced ? filter : listUser;
-
-  const dataSource = aaa?.data?.map((item: any) => {
+  const dataSource = listUser?.data?.map((item: any) => {
     const { id, attributes } = item;
     return { id, ...attributes };
   });
@@ -216,38 +190,38 @@ const UserTable = (props: IUserTableProps) => {
               </Button>
             </Popconfirm>
           )}
+
+          {searchValue}
         </div>
 
         <div className='flex items-center justify-between gap-3'>
-          <Input
-            allowClear
-            size='large'
-            placeholder='Search by name'
-            onChange={e => setValue(e.target.value)}
-            prefix={<SearchOutlined className='!text-gray-400' />}
-          />
           <RadioGroup />
 
           <Tooltip title='Settings'>
             <Popover
-              content={userColumns.map((item: any) => (
-                <div key={item.title} className='flex gap-2'>
-                  <Checkbox
-                    key={item.title}
-                    name={item.label}
-                    disabled={['Action', 'ID'].includes(item.title)}
-                    onChange={() => {
-                      if (checkedList.includes(item.key)) {
-                        setCheckedList(checkedList.filter(key => key !== item.key));
-                      } else {
-                        setCheckedList([...checkedList, item.key]);
-                      }
-                    }}
-                  />
+              content={
+                <>
+                  <Divider className='!mb-2 !mt-2' />
+                  {userColumns.map((item: any) => (
+                    <div key={item.title} className='flex gap-2'>
+                      <Checkbox
+                        key={item.title}
+                        name={item.label}
+                        disabled={['Action', 'ID'].includes(item.title)}
+                        onChange={() => {
+                          if (checkedList.includes(item.key)) {
+                            setCheckedList(checkedList.filter(key => key !== item.key));
+                          } else {
+                            setCheckedList([...checkedList, item.key]);
+                          }
+                        }}
+                      />
 
-                  <p>{item.title}</p>
-                </div>
-              ))}
+                      <p>{item.title}</p>
+                    </div>
+                  ))}
+                </>
+              }
               arrowContent
               placement='bottomRight'
               title='Hidden fields'
@@ -259,15 +233,6 @@ const UserTable = (props: IUserTableProps) => {
         </div>
       </div>
 
-      {/* Cho thằng này thành ssr có nhận 2 data từ ssr listUser/FilterListUserbyName */}
-      {/* <TableBase
-        dataSource={dataSource}
-        filterUser={filter}
-        listUser={listUser}
-        newColumns={newColumns}
-        selectedRowKeys={selectedRowKeys}
-        setSelectedRowKeys={() => selectedRowKeys}
-      /> */}
       <Table
         rowKey={(item: any) => item?.id}
         rowSelection={{
@@ -282,9 +247,9 @@ const UserTable = (props: IUserTableProps) => {
           showQuickJumper: true,
           defaultPageSize: 10,
           showSizeChanger: true,
-          showTotal: () => (
+          showTotal: val => (
             <p>
-              <span className='font-bold'>{aaa?.data?.length || '0'}</span>&nbsp;users in total
+              <span className='font-bold'>{val || '0'}</span>&nbsp;users in total
             </p>
           ),
           pageSizeOptions: ['10', '20', '30'],
