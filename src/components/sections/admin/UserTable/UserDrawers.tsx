@@ -1,5 +1,5 @@
 import { Button, Drawer, Form, FormInstance, Input } from 'antd';
-import { FieldType } from '../sections/admin/UserTable';
+import { DataType } from '.';
 
 interface IUserDrawersProps {
   open?: boolean;
@@ -31,11 +31,11 @@ const UserDrawers = (props: IUserDrawersProps) => {
         onFinish={onFinish}
         autoComplete='off'
       >
-        <Form.Item<FieldType> label='ID' name='id'>
+        <Form.Item<DataType> label='ID' name='id'>
           <Input disabled />
         </Form.Item>
 
-        <Form.Item<FieldType>
+        <Form.Item<DataType>
           label='Username'
           name='name'
           rules={[{ required: true, message: 'Please input your username!' }]}
@@ -43,7 +43,7 @@ const UserDrawers = (props: IUserDrawersProps) => {
           <Input />
         </Form.Item>
 
-        <Form.Item<FieldType>
+        <Form.Item<DataType>
           label='Age'
           name='age'
           rules={[{ required: true, message: 'Please input your password!' }]}

@@ -1,7 +1,6 @@
 'use client';
 
 import { createUser, deleteUser } from '@/api-request/user';
-import UserDrawers from '@/components/drawers/UserDrawers';
 import { useRouter } from '@/hooks/useRouter';
 import { useSearchTable } from '@/hooks/useSearchTable';
 import { DeleteOutlined, EyeOutlined, PlusCircleOutlined, SettingOutlined } from '@ant-design/icons';
@@ -21,6 +20,7 @@ import {
 } from 'antd';
 import React from 'react';
 import RadioGroup from '../RadioGroup';
+import UserDrawers from './UserDrawers';
 
 export type DataType = { id?: string; name?: string; age?: string; createdAt?: string } | any;
 
@@ -36,6 +36,7 @@ const UserTable = (props: IUserTableProps) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const { getColumnSearchProps, searchValue } = useSearchTable();
 
   const showDrawer = () => {
     const getID = form.getFieldValue('id');
@@ -61,7 +62,6 @@ const UserTable = (props: IUserTableProps) => {
     router.refresh();
   };
 
-  const { getColumnSearchProps, searchValue } = useSearchTable();
 
   const userColumns: TableColumnsType<DataType> = [
     {
