@@ -1,8 +1,13 @@
 import { getDetailUser } from '@/api-request/user';
 import { XFilled } from '@ant-design/icons';
-import { Button, Divider, Input } from 'antd';
+import { Button, Divider } from 'antd';
 import dayjs from 'dayjs';
 import { Metadata } from 'next';
+import ButtonDelete from './_components/ButtonDelete';
+import FormDetail from './_components/FormDetail';
+
+const relativeTime = require('dayjs/plugin/relativeTime');
+dayjs.extend(relativeTime);
 
 export const metadata: Metadata = {
   title: 'User detail',
@@ -12,9 +17,6 @@ export const metadata: Metadata = {
 const UserDetail = async ({ params }: any) => {
   const data = await getDetailUser(params.id);
   const { id, attributes } = data?.data || {};
-
-  console.log('attributes', attributes);
-  console.log(dayjs().isBefore(dayjs('2011-01-01')));
 
   return (
     <div className='flex flex-col gap-3'>
@@ -28,19 +30,12 @@ const UserDetail = async ({ params }: any) => {
       </div>
 
       <div className='flex justify-between gap-4'>
-        <div className='flex-1 rounded bg-white p-4 shadow-md'>
-          <div>
-            <p className='text-[17px] font-medium'>Exceed Max</p>
-            <Input
-              count={{
-                show: true,
-                max: 10,
-              }}
-              defaultValue='Hello, antd!'
-            />
-          </div>
+        {/* Grid */}
+        <div className='flex flex-1 rounded bg-white p-4 shadow-md'>
+          <FormDetail />
         </div>
 
+        {/* INFORMATION */}
         <div className='flex min-w-[240px] flex-col gap-3'>
           <div className='flex gap-3 rounded bg-[#EAFBE7] p-4 shadow-md'>
             <XFilled size={8} className='!text-green-800' />
@@ -55,9 +50,26 @@ const UserDetail = async ({ params }: any) => {
             <Divider className='!-mt-1 !mb-2' />
             <div className='flex justify-between gap-2'>
               <p className='font-medium'>Created</p>
-              <p className='text-gray-500'>{dayjs(attributes.createdAt).format('DD/MM/YYYY')}</p>
+              <p className='text-gray-500'>{(dayjs(attributes.createdAt) as any).fromNow()}</p>
+            </div>
+
+            <div className='flex justify-between gap-2'>
+              <p className='font-medium'>By</p>
+              <p className='text-gray-500'>-</p>
+            </div>
+
+            <div className='flex justify-between gap-2'>
+              <p className='font-medium'>Last update</p>
+              <p className='text-gray-500'>{(dayjs(attributes.updatedAt) as any).fromNow()}</p>
+            </div>
+
+            <div className='flex justify-between gap-2'>
+              <p className='font-medium'>By</p>
+              <p className='text-gray-500'>-</p>
             </div>
           </div>
+
+          <ButtonDelete id={id} />
         </div>
       </div>
     </div>

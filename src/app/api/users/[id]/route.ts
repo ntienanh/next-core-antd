@@ -4,7 +4,6 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest, { params }: { params: { id: number } }) {
-  console.log('adsdasdas', params);
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, {
     next: { revalidate: 10 },
     headers: {
@@ -18,8 +17,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: numb
 
 export async function PUT(request: NextRequest, { params }: { params: { id: number } }) {
   const body = await request.json();
-  console.log('body', body);
-  console.log('params', params.id);
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, {
     method: 'PUT',
     headers: {

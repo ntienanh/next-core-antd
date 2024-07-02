@@ -13,7 +13,6 @@ const RadioGroup = () => {
   const [value1, setValue1] = React.useState('list');
 
   const onChange1 = ({ target: { value } }: RadioChangeEvent) => {
-    console.log('radio1 checked', value);
     setValue1(value);
   };
 

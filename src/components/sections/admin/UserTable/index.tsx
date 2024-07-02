@@ -62,7 +62,6 @@ const UserTable = (props: IUserTableProps) => {
     router.refresh();
   };
 
-
   const userColumns: TableColumnsType<DataType> = [
     {
       title: 'ID',

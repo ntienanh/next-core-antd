@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
   if (res.status == 200) {
     revalidateTag('test');
     revalidatePath('/admin/user');
+    revalidatePath('/admin/home');
   }
 
   const data = await res.json();

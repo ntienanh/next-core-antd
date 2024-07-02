@@ -52,7 +52,7 @@ const UserDrawers = (props: IUserDrawersProps) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button disabled={loading} type='primary' htmlType='submit'>
+          <Button disabled={loading} type='primary' htmlType='submit' loading={loading}>
             Submit
           </Button>
         </Form.Item>
