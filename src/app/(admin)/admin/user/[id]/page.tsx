@@ -22,17 +22,17 @@ const UserDetail = async ({ params }: any) => {
     <div className='flex flex-col gap-3'>
       <div className='flex items-center justify-between'>
         <p className='text-[32px] font-semibold'>{attributes?.name}</p>
-        <div>
+        {/* <div>
           <Button type='primary' size='large'>
             Save
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <div className='flex justify-between gap-4'>
         {/* Grid */}
         <div className='flex flex-1 rounded bg-white p-4 shadow-md'>
-          <FormDetail />
+          <FormDetail defaultValues={data} />
         </div>
 
         {/* INFORMATION */}
