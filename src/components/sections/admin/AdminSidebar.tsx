@@ -39,6 +39,7 @@ const AdminSidebar = () => {
             ],
           },
           { key: 'media', icon: <LinkOutlined />, label: <Link href={'/admin/media'}>Media Library</Link> },
+          { key: 'calendar', icon: <LinkOutlined />, label: <Link href={'/admin/calendar'}>Calendar</Link> },
         ]}
       />
     </Sider>

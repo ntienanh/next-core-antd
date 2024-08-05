@@ -158,9 +158,11 @@ const UserTable = (props: IUserTableProps) => {
 
       <div className='flex items-center justify-between pb-2'>
         <div className='flex items-center gap-3'>
-          <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
-            Add new User
-          </Button>
+          <div className='gap4 flex'>
+            <Button size='large' type='primary' icon={<PlusCircleOutlined />} onClick={showDrawer}>
+              Add new User
+            </Button>
+          </div>
 
           {selectedRowKeys.length > 0 && (
             <Popconfirm
@@ -184,7 +186,7 @@ const UserTable = (props: IUserTableProps) => {
               okType='danger'
               cancelText='Cancel'
             >
-              <Button size='large' danger>
+              <Button size='small' danger>
                 Delele {selectedRowKeys.length} item
               </Button>
             </Popconfirm>
@@ -248,14 +250,14 @@ const UserTable = (props: IUserTableProps) => {
           showSizeChanger: true,
           showTotal: val => (
             <p>
-              <span className='font-bold'>{val || '0'}</span>&nbsp;users in total
+              <span className='font-bold'>{val || '0'}</span>&nbsp;orders in total
             </p>
           ),
           pageSizeOptions: ['10', '20', '30'],
         }}
         bordered
         // sroll X phải lớn hơn tổng width của các col width
-        scroll={{ x: 1000, y: 572 }}
+        scroll={{ x: 1000 }}
       />
     </div>
   );

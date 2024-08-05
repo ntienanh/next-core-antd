@@ -1,5 +1,5 @@
+import AntdStyledComponentsRegistry from '@/components/providers/AntdStyledComponentsRegistry';
 import '@/styles/globals.css';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { App, ConfigProvider } from 'antd';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -21,12 +21,12 @@ export default function RootLayout({
     <html lang='en'>
       <body className={inter.className}>
         <ConfigProvider theme={{ cssVar: true }}>
-          <AntdRegistry>
+          <AntdStyledComponentsRegistry>
             <App notification={{ maxCount: 1 }}>
               <NextTopLoader color='#1677ff' showSpinner={false} />
               {children}
             </App>
-          </AntdRegistry>
+          </AntdStyledComponentsRegistry>
         </ConfigProvider>
       </body>
     </html>
