@@ -18,6 +18,7 @@ const nextConfig = {
     'rc-tree',
     'rc-table',
   ],
+  reactStrictMode: false,
 };
 
 export default nextConfig;

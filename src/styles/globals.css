@@ -1,5 +1,7 @@
-@layer tailwind-base, mecore;
+@import 'react-big-calendar/lib/addons/dragAndDrop/styles';
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
 
+@layer tailwind-base, mecore;
 @layer tailwind-base {
   @tailwind base;
 }

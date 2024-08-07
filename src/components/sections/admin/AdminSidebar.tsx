@@ -18,6 +18,7 @@ const AdminSidebar = () => {
       collapsed={toggle}
       onCollapse={() => setToggle(!toggle)}
       theme='light'
+      breakpoint='lg'
       className='!sticky left-0 top-0 h-screen pt-[60px]'
     >
       <Menu
